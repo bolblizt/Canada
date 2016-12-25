@@ -19,7 +19,7 @@ class ImageTableViewCell: UITableViewCell {
     {
         super.init(style: .default , reuseIdentifier: reuseIdentifier)
         title = UILabel(frame: CGRect(x: 70.0, y: 7.0, width: 250.0 , height: 20.0 ))
-        detailInfo = UILabel(frame: CGRect.zero) 
+        detailInfo = UILabel(frame: CGRect.zero)
         detailInfo.translatesAutoresizingMaskIntoConstraints = false
         detailInfo.numberOfLines = 0
         detailInfo.font = UIFont(name: "Hevetica Neue", size: 11.0)
@@ -34,9 +34,11 @@ class ImageTableViewCell: UITableViewCell {
         
         //add contraints to make the label have dynamic width
        let views = Dictionary(dictionaryLiteral: ("detailInfo", detailInfo))
-        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|-(30)-[detailInfo(300)]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
-        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-(30)-[detailInfo]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
+        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|-(70)-[detailInfo(300)]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
+        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-(40)-[detailInfo]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
+        
         self.detailInfo.sizeThatFits(CGSize(width: 300.0, height: 34.0))
+        self.detailInfo.preferredMaxLayoutWidth = 400
         
         
         

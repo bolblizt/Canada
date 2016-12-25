@@ -29,10 +29,10 @@ class ViewController: UITableViewController {
         self.title = "Loading..."
         self.tableView.delegate = self
         self.tableView.dataSource = self
-        
+        self.registerCellsForTableView(tableView: self.tableView)
         //get data from server
         self.PrepData()
-         self.registerCellsForTableView(tableView: self.tableView)
+        
         self.arrayList = NSMutableArray()
         self.tableView.rowHeight = 80.0
         // NotificationCenter.default.addObserver(self, selector: #selector(ViewController.RefreshTable), name: NSNotification.Name(rawValue: "RefreshTable"), object: nil)
@@ -118,6 +118,11 @@ class ViewController: UITableViewController {
             
         }
         
+         let sizeCell:CGSize = (cellImage.contentView.systemLayoutSizeFitting(CGSize.zero))
+        print("cell size\(sizeCell.height)")
+        self.tableView.rowHeight = 100.0
+        
+        
         
         return cellImage
     }
@@ -126,8 +131,15 @@ class ViewController: UITableViewController {
     // MARK: - UITableView Add Delegate.
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")
+            cell?.layoutIfNeeded()
+           // self.tableView(<#T##tableView: UITableView##UITableView#>, cellForRowAt: <#T##IndexPath#>)
+            
+            let sizeCell:CGSize = (cell?.contentView.systemLayoutSizeFitting(CGSize.zero))!
         
-        return 120.0
+        
+             return 80.0
     }
 
     
