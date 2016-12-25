@@ -26,10 +26,18 @@ class Downloader: NSObject {
         
     }
     
-    
+    /*
     func DownloadOperation(){
-           }
-    
+        queue = OperationQueue()
+        
+        let operation1 = BlockOperation(block: {
+            let img1 = Downloader.downloadImageWithURL(imageURLs[0])
+            OperationQueue.main.addOperation({
+                self.imageView1.image = img1
+            })
+        })
+    }
+    */
     
     func StartDownload(thisRecord:AppImage, completion: (_ result: AppImage)->()) ->() {
         
@@ -78,6 +86,7 @@ class Downloader: NSObject {
                         print("Everyone is fine, file downloaded successfully.")
                         
                         if let data = data {
+                            
                             let  kAppIconSize:CGFloat = 44.0
                             let imageIcon = UIImage(data: data)
                             if imageIcon?.size.width != kAppIconSize || imageIcon?.size.height != kAppIconSize{
@@ -88,6 +97,14 @@ class Downloader: NSObject {
                                 imageIcon?.draw(in: imageRect)
                                 thisRecord.imageIcon = UIGraphicsGetImageFromCurrentImageContext()
                                 UIGraphicsEndImageContext()
+ 
+                           // let imageIcon = UIImage(data: data)
+                           // thisRecord.imageIcon = imageIcon
+                            
+                            }
+                            else
+                            {
+                                thisRecord.imageIcon = imageIcon
                             }
                             
                         }

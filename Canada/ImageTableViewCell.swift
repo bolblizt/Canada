@@ -18,16 +18,27 @@ class ImageTableViewCell: UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String!)
     {
         super.init(style: .default , reuseIdentifier: reuseIdentifier)
-        title = UILabel(frame: CGRect(x: 40.0, y: 5.0, width: 150.0 , height: 20.0 ))
-        detailInfo = UILabel(frame: CGRect(x: 40, y: 50, width: 200, height: 34))
+        title = UILabel(frame: CGRect(x: 70.0, y: 7.0, width: 250.0 , height: 20.0 ))
+        detailInfo = UILabel(frame: CGRect(x: 70.0, y: 30, width: 250, height: 34))
         detailInfo.numberOfLines = 0
-        detailInfo.font = UIFont(name: "Hevetica Nue", size: 13.0)
+        detailInfo.font = UIFont(name: "Hevetica Neue", size: 11.0)
         
-        //title.backgroundColor = UIColor.yellowColor();
+
         self.addSubview(title)
-        imgV = UIImageView(frame: CGRect(x: 5, y: 5.0, width: 44.0, height: 44.0))
+        imgV = UIImageView(frame: CGRect(x: 5, y: 5.0, width: 45.0, height: 45.0))
+       
         self.addSubview(imgV)
         self.addSubview(detailInfo)
+        
+        
+        //add contraints to make the label have dynamic width
+       let views = Dictionary(dictionaryLiteral: ("detailInfo", detailInfo))
+        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|-(10)-[detailInfo(300)]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
+        self.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-(10)-[label]", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: views))
+        self.detailInfo.sizeThatFits(CGSize(width: 300.0, height: 34.0))
+        
+        
+        
     }
     
     required init(coder aDecoder: NSCoder) {

@@ -8,35 +8,33 @@
 
 import UIKit
 
+ let urlStr:String = "https://dl.dropboxusercontent.com/u/746330/facts.json"
+
 class ViewController: UITableViewController {
     
     
-
+   
+    
     var arrayList:NSMutableArray!
     var dataProvider: TableDataListProvider?
     private let cellIdentifer = "Cell"
     var appTitle:String?
     var downloader:Downloader?
-    var imageDownloadProgress:NSMutableDictionary?
+    var queue:OperationQueue!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         print("List Count: \(arrayList?.count)")
-        self.title = "Rivera"
+        self.title = "Loading..."
         self.tableView.delegate = self
         self.tableView.dataSource = self
+        
+        //get data from server
         self.PrepData()
          self.registerCellsForTableView(tableView: self.tableView)
         self.arrayList = NSMutableArray()
-        
-        DispatchQueue.global(qos: .default).async {
-            
-            self.imageDownloadProgress = NSMutableDictionary()
-            
-            
-        }
-        
+        self.tableView.rowHeight = 80.0
         // NotificationCenter.default.addObserver(self, selector: #selector(ViewController.RefreshTable), name: NSNotification.Name(rawValue: "RefreshTable"), object: nil)
      
         
@@ -73,19 +71,20 @@ class ViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifer, for: indexPath)
+      let cellImage:ImageTableViewCell = ImageTableViewCell(style: .subtitle, reuseIdentifier: "Cell")
 
        let rowCount = self.arrayList.count
         
         if rowCount == 0 &&  indexPath.row == 0 {
             
-            //placeholder
+            //set initial cell place holder while data is being retrieve
+            let placeHolder = AppImage()
+            cellImage.setCell(itemRecord:placeHolder )
             
         }
         else
         {
             
-            let cellImage:ImageTableViewCell = ImageTableViewCell(style: .default, reuseIdentifier: "Cell")
             
             if rowCount > 0 {
                 
@@ -110,18 +109,17 @@ class ViewController: UITableViewController {
                 }
                 else
                 {
-                    // image cell
+                    // set new image after download
                     cellImage.setCell(itemRecord: appIcon!)
                 }
 
             }
             
-            return cellImage
             
         }
         
         
-        return cell
+        return cellImage
     }
 
     
@@ -129,14 +127,11 @@ class ViewController: UITableViewController {
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         
         
-        return 60.0
+        return 120.0
     }
 
     
-    
     //MARK: - Utility Functions
-    
-    
     func RefreshTable(){
         
         tableView.reloadData()
@@ -147,7 +142,7 @@ class ViewController: UITableViewController {
     func PrepData(){
         
         let imageArray:NSMutableArray = NSMutableArray()
-        let requestURL: URL = URL.init(string: "https://dl.dropboxusercontent.com/u/746330/facts.json")!
+        let requestURL: URL = URL.init(string:urlStr )!
         let urlRequest: NSMutableURLRequest = NSMutableURLRequest(url: requestURL)
         let config = URLSessionConfiguration.default
         let session = URLSession(configuration: config)
@@ -181,24 +176,23 @@ class ViewController: UITableViewController {
                                     if  let exactItem = infoItem as? [String:AnyObject] {
                                         if let  detailStr = exactItem["description"] as? String {
                                             
-                                            // delegate.userRegInfo.mobileNumber = contact_no
-                                            print ("description: \(detailStr)")
+                                           
+                                            //print ("description: \(detailStr)")
                                             imageContainer.descript = detailStr
                                             
                                         }
                                         
                                         if let  titleStr = exactItem["title"] as? String {
                                             
-                                            // delegate.userRegInfo.mobileNumber = contact_no
-                                            print ("Title: \(titleStr)")
+                                            //print ("Title: \(titleStr)")
                                             imageContainer.title = titleStr
                                             
                                         }
                                         
                                         if let  imageHref = exactItem["imageHref"] as? String {
                                             
-                                            // delegate.userRegInfo.mobileNumber = contact_no
-                                            print ("imagRef: \(imageHref)")
+                                           
+                                           // print ("imagRef: \(imageHref)")
                                             imageContainer.imageURL = imageHref
                                             
                                         }
@@ -218,9 +212,11 @@ class ViewController: UITableViewController {
                         }
 
                         if imageArray.count > 0 {
+                            
                             self.arrayList = imageArray
                             DispatchQueue.main.async {
                                 self.dataProvider?.arrayList = imageArray
+                                self.title = self.appTitle
                                 self.tableView.reloadData()
                             }
 
@@ -251,21 +247,18 @@ class ViewController: UITableViewController {
     
     
     
+    
+    
+    
     func StartDownLoader(imageRecord:AppImage, path:IndexPath){
         
         if (imageRecord.imageIcon == nil)
         {
             // Avoid the app icon download if the app already has an icon
-            
+
             let myDownloader:Downloader = Downloader()
             myDownloader.StartDownload(thisRecord: imageRecord,  completion: {(newRecord) -> () in
-                
                 self.arrayList.replaceObject(at: path.row, with: newRecord)
-                DispatchQueue.main.async {
-                     self.tableView.reloadRows(at: [path], with: .fade)
-                }
-               
-                
                 
             })
             
@@ -290,7 +283,25 @@ class ViewController: UITableViewController {
                 if (!(appRecord.imageIcon != nil))
                 {
                     // Avoid the app icon download if the app already has an icon
-                    self.StartDownLoader(imageRecord: appRecord, path: indexPath)
+                    
+                    
+                    queue = OperationQueue()
+                    
+                    let operation = BlockOperation(block: {
+                      self.StartDownLoader(imageRecord: appRecord, path: indexPath)
+                        OperationQueue.main.addOperation({
+                         //   self.imageView1.image = img1
+                            self.tableView.reloadRows(at: [indexPath], with: .fade)
+                        })
+                    })
+                    
+                    operation.completionBlock = {
+                        print("Operation  Done, cancelled:\(operation.isCancelled)")
+                    }
+                    queue.addOperation(operation)
+                    
+                    
+                    
                 }
             }
         }
@@ -313,7 +324,7 @@ class ViewController: UITableViewController {
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
+        self.loadImagesForOnscreenRows()
     }
     
 
