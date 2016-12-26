@@ -35,6 +35,8 @@ class ViewController: UITableViewController {
         
         self.arrayList = NSMutableArray()
         self.tableView.rowHeight = 80.0
+        //tableView.rowHeight = UITableViewAutomaticDimension
+        //tableView.estimatedRowHeight = 140
         // NotificationCenter.default.addObserver(self, selector: #selector(ViewController.RefreshTable), name: NSNotification.Name(rawValue: "RefreshTable"), object: nil)
      
         
@@ -118,11 +120,7 @@ class ViewController: UITableViewController {
             
         }
         
-         let sizeCell:CGSize = (cellImage.contentView.systemLayoutSizeFitting(CGSize.zero))
-        print("cell size\(sizeCell.height)")
-        self.tableView.rowHeight = 100.0
-        
-        
+                
         
         return cellImage
     }
@@ -136,10 +134,10 @@ class ViewController: UITableViewController {
             cell?.layoutIfNeeded()
            // self.tableView(<#T##tableView: UITableView##UITableView#>, cellForRowAt: <#T##IndexPath#>)
             
-            let sizeCell:CGSize = (cell?.contentView.systemLayoutSizeFitting(CGSize.zero))!
+            let sizeCell:CGSize = (cell?.contentView.systemLayoutSizeFitting(UILayoutFittingCompressedSize))!
         
-        
-             return 80.0
+            print("\(sizeCell.height)")
+        return 100;
     }
 
     
