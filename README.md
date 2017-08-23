@@ -1,0 +1,2 @@
+# Canada
+Lazy image loading
